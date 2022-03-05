@@ -35,5 +35,9 @@
             temp += Console.ReadLine();
             return temp;
         }
+        public static void ContinueWorkflow()
+        {
+
+        }
     }
 }
