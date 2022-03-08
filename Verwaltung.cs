@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hotelreservierung
+﻿namespace Hotelreservierung
 {
-    public interface IVerwaltung
+    public abstract class IVerwaltung
     {
         public abstract void Anlegen(List<IVerwaltung> verwaltungsList);
-        public void Bearbeiten(List<IVerwaltung> verwaltungsList);
-        public void Loeschen(List<IVerwaltung> verwaltungsList);
-        public void Ausgeben(List<IVerwaltung> verwaltungsList);
+        public abstract void Bearbeiten(List<IVerwaltung> verwaltungsList);
+        public abstract void Loeschen(List<IVerwaltung> verwaltungsList);
+        public abstract void Ausgeben(List<IVerwaltung> verwaltungsList);
 
     }
     public class GaesteVerwaltung : IVerwaltung
@@ -160,7 +154,12 @@ namespace Hotelreservierung
             Kategorie = kategorie;
         }
 
-        static void Anlegen(List<ZimmerVerwaltung> zimmerVerwaltungsListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public override string ToString()
+        {
+            return Convert.ToString(ZimmerNummer);
+        }
+
+        public static void Anlegen(List<ZimmerVerwaltung> zimmerVerwaltungsListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             string ausrichtung;
             ushort groesse, zimmerNummer;
@@ -178,7 +177,7 @@ namespace Hotelreservierung
             zimmerVerwaltungsListe.Add(new ZimmerVerwaltung(zimmerNummer, groesse, ausrichtung, kategorie));
         }
 
-        static void Bearbeiten(List<ZimmerVerwaltung> zimmerVerwaltungsListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public static void Bearbeiten(List<ZimmerVerwaltung> zimmerVerwaltungsListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie ein Zimmer bearbeiten wollen.");
             Console.WriteLine("Bitte geben Sie die Nummer des Zimmers an, das Sie bearbeiten wollen.");
@@ -199,18 +198,22 @@ namespace Hotelreservierung
                 Console.WriteLine("Geben Sie den gewünschten neuen Wert ein.");
                 if (eingabe == "Zimmernummer")
                 {
-                    element.Name = Console.ReadLine();
+                    element.ZimmerNummer = Convert.ToUInt16(Console.ReadLine());
                     Console.WriteLine("Sie haben die Zimmernummer auf " + element.ZimmerNummer + " geändert.");
                 }
                 else if (eingabe == "Größe")
                 {
-                    element.MaxPersonenAnzahl = Convert.ToByte(Console.ReadLine());
+                    element.Groesse = Convert.ToByte(Console.ReadLine());
                     Console.WriteLine("Sie haben die Größe auf " + element.Groesse + " geändert.");
                 }
                 else if (eingabe == "Ausrichtung")
                 {
-                    element.BeschreibungAusstattung = Console.ReadLine();
+                    element.Ausrichtung = Console.ReadLine();
                     Console.WriteLine("Sie haben die Ausrichtung auf " + element.Ausrichtung + " geändert.");
+                }
+                else if(eingabe == "Kategorie")
+                {
+                    //TODO
                 }
                 else
                 {
@@ -219,7 +222,7 @@ namespace Hotelreservierung
             }
         }
 
-        static void Loeschen(List<ZimmerVerwaltung> zimmerVerwaltungsListe)
+        public static void Loeschen(List<ZimmerVerwaltung> zimmerVerwaltungsListe)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie ein Zimmer löschen wollen.");
             Console.WriteLine("Bitte geben Sie die Zimmernummer des Zimmers an, das Sie löschen wollen.");
@@ -243,7 +246,7 @@ namespace Hotelreservierung
             }
         }
 
-        static void Ausgeben(List<ZimmerVerwaltung> zimmerVerwaltungsListe)
+        public static void Ausgeben(List<ZimmerVerwaltung> zimmerVerwaltungsListe)
         {
             for (int i = 0; i < zimmerVerwaltungsListe.Count; i++)
             {
@@ -270,7 +273,11 @@ namespace Hotelreservierung
             PreisWoche = preisWoche;
         }
 
-        static void Anlegen(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public override string ToString()
+        {
+            return Name;
+        }
+        public static void Anlegen(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             string name, beschreibungAusstattung;
             byte maxPersonenAnzahl;
@@ -289,7 +296,7 @@ namespace Hotelreservierung
             zimmerKategorieVerwaltungsListe.Add(new ZimmerKategorieVerwaltung(name, maxPersonenAnzahl, beschreibungAusstattung, preisNacht, preisWoche));
         }
 
-        static void Bearbeiten(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public static void Bearbeiten(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Zimmerkategorie bearbeiten wollen.");
             Console.WriteLine("Bitte geben Sie den Namen der Zimmerkategorie an, die Sie bearbeiten wollen.");
@@ -331,7 +338,7 @@ namespace Hotelreservierung
             }
         }
 
-        static void Loeschen(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public static void Loeschen(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Zimmerkategorie löschen wollen.");
             Console.WriteLine("Bitte geben Sie die den Namen der Kategorie an, die Sie löschen wollen.");
@@ -355,7 +362,7 @@ namespace Hotelreservierung
             }
         }
 
-        static void Ausgeben(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
+        public static void Ausgeben(List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe)
         {
             for (int i = 0; i < zimmerKategorieVerwaltungsListe.Count; i++)
             {
@@ -383,7 +390,12 @@ namespace Hotelreservierung
             Gesamtkosten = gesamtkosten;
         }
 
-        public void Anlegen(List<ReservierungsVerwaltung> reservierungsListe)
+        public override string ToString()
+        {
+            return Convert.ToString(Reservierungsnummer);
+        }
+
+        public static void Anlegen(List<ReservierungsVerwaltung> reservierungsListe)
         {
             uint reservierungsnummer;
             byte anzahlPersonen;
@@ -478,7 +490,7 @@ namespace Hotelreservierung
             
         }
 
-        static void Loeschen(List<ReservierungsVerwaltung> reservierungsList)
+        public static void Loeschen(List<ReservierungsVerwaltung> reservierungsList)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Reservierung löschen wollen.");
             Console.WriteLine("Bitte geben Sie die Reservierungsnummer an, die Sie löschen wollen.");
