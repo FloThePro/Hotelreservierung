@@ -8,7 +8,7 @@
         public abstract void Ausgeben(List<IVerwaltung> verwaltungsList);
 
     }
-    public class GaesteVerwaltung : IVerwaltung
+    public class GaesteVerwaltung
     {
         public uint Id { get; set; }
         public string Vorname { get; set; }
@@ -121,7 +121,7 @@
             }
             else if (eingabe == "Nein")
             {
-                Program.ContinueWorkflow();
+
             }
             else
             {
@@ -139,7 +139,7 @@
         }
     }
 
-    public class ZimmerVerwaltung : IVerwaltung
+    public class ZimmerVerwaltung 
     {
         public ZimmerKategorieVerwaltung Kategorie;
         public ushort ZimmerNummer { get; set; }
@@ -211,10 +211,6 @@
                     element.Ausrichtung = Console.ReadLine();
                     Console.WriteLine("Sie haben die Ausrichtung auf " + element.Ausrichtung + " geändert.");
                 }
-                else if(eingabe == "Kategorie")
-                {
-                    //TODO
-                }
                 else
                 {
                     Console.WriteLine("Ihre Eingabe " + eingabe + " ist ungültig");
@@ -237,7 +233,7 @@
             }
             else if (eingabe == "Nein")
             {
-                Program.ContinueWorkflow();
+
             }
             else
             {
@@ -256,7 +252,7 @@
 
     }
 
-    public class ZimmerKategorieVerwaltung :IVerwaltung
+    public class ZimmerKategorieVerwaltung 
     {
         public string Name { get; set; }
         public byte MaxPersonenAnzahl { get; set; }
@@ -353,7 +349,7 @@
             }
             else if (eingabe == "Nein")
             {
-                Program.ContinueWorkflow();
+
             }
             else
             {
@@ -371,18 +367,22 @@
         }
     }
 
-    public class ReservierungsVerwaltung : IVerwaltung
+    public class ReservierungsVerwaltung 
     {
-        public uint Reservierungsnummer { get; set; }
+        public uint ReservierungsNummer { get; set; }
         public byte AnzahlPersonen { get; set; }
         public DateTime AnreiseDatum { get; set; }
         public DateTime AbreiseDatum { get; set; }
         public string Verpflegung { get; set; }
         public double Gesamtkosten { get; set; }
+        public GaesteVerwaltung Gast { get; set; }
+        public ZimmerVerwaltung Zimmer { get; set; }
 
-        public ReservierungsVerwaltung(uint reservierungsnummer, byte anzahlPersonen, DateTime anreiseDatum, DateTime abreiseDatum, string verpflegung, double gesamtkosten)
+        public ReservierungsVerwaltung(uint reservierungsnummer, GaesteVerwaltung gast, ZimmerVerwaltung zimmer, byte anzahlPersonen, DateTime anreiseDatum, DateTime abreiseDatum, string verpflegung, double gesamtkosten)
         {
-            Reservierungsnummer = reservierungsnummer;
+            ReservierungsNummer = reservierungsnummer;
+            Gast = gast;
+            Zimmer = zimmer;
             AnzahlPersonen = anzahlPersonen;
             AnreiseDatum = anreiseDatum;
             AbreiseDatum = abreiseDatum;
@@ -390,22 +390,33 @@
             Gesamtkosten = gesamtkosten;
         }
 
+        //Überladung der ToString Methode zur Ausgabe der Reservierungsnummer
         public override string ToString()
         {
-            return Convert.ToString(Reservierungsnummer);
+            return Convert.ToString(ReservierungsNummer);
         }
 
-        public static void Anlegen(List<ReservierungsVerwaltung> reservierungsListe)
+        //Anlegen einer Reservierung
+        public static void Anlegen(List<ReservierungsVerwaltung> reservierungsListe, List<GaesteVerwaltung> gaesteListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe, List<ZimmerVerwaltung> zimmerVerwaltungsListe)
         {
             uint reservierungsnummer;
             byte anzahlPersonen;
             string verpflegung;
             DateTime anreiseDatum, abreiseDatum;
             double gesamtkosten;
+            GaesteVerwaltung gast;
+            ZimmerKategorieVerwaltung zimmerKategorie;
+            ZimmerVerwaltung zimmer;
 
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Reservierung anlegen wollen.");
             Console.WriteLine("Bitte geben Sie die Reservierungsnummer an:");
             reservierungsnummer = Convert.ToUInt32(Console.ReadLine());
+            Console.WriteLine("Bitte geben Sie die ID des Gastes an, den Sie dieser Reservierung zuweisen wollen.");
+            uint gastId = Convert.ToUInt32(Console.ReadLine());
+            gast = gaesteListe.Find(e => e.Id == gastId);
+            Console.WriteLine("Bitte geben Sie die Nummer des Zimmers an, das Sie dieser Reservierung zuweisen wollen.");
+            ushort zimmerNummer = Convert.ToUInt16(Console.ReadLine());
+            zimmer = zimmerVerwaltungsListe.Find(e => e.ZimmerNummer == zimmerNummer);
             Console.WriteLine("Bitte geben Sie die Anzahl der Personen, für die der Platz reserviert wird, an:");
             anzahlPersonen = Convert.ToByte(Console.ReadLine());
             Console.WriteLine("Bitte geben Sie das Anreisedatum der Gäste an:");
@@ -421,65 +432,69 @@
             else
             {
                 Console.WriteLine("Ihre Eingabe " + verpflegung + " ist ungültig. Versuchen Sie es bitte errneut.");
-                Anlegen(reservierungsListe);
+                Anlegen(reservierungsListe, gaesteListe, zimmerKategorieVerwaltungsListe, zimmerVerwaltungsListe);
             }
             Console.WriteLine("Bitte geben Sie die Gesamtkosten der Reservierung an");
             gesamtkosten = Convert.ToDouble(Console.ReadLine());
-            reservierungsListe.Add(new ReservierungsVerwaltung(reservierungsnummer, anzahlPersonen, anreiseDatum, abreiseDatum, verpflegung, gesamtkosten));
+            reservierungsListe.Add(new ReservierungsVerwaltung(reservierungsnummer, gast, zimmer, anzahlPersonen, anreiseDatum, abreiseDatum, verpflegung, gesamtkosten));
         }
 
-        public static void Bearbeiten(List<ReservierungsVerwaltung> reservierungsListe)
+        public static void Bearbeiten(List<ReservierungsVerwaltung> reservierungsListe, List<GaesteVerwaltung> gaesteListe, List<ZimmerKategorieVerwaltung> zimmerKategorieVerwaltungsListe, List<ZimmerVerwaltung> zimmerVerwaltungsListe)
         {
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Reservierung bearbeiten wollen.");
             Console.WriteLine("Bitte geben Sie die Nummer der Reservierung an, die Sie bearbeiten wollen.");
             uint temp = Convert.ToUInt32(Console.ReadLine());
-            var element = reservierungsListe.Find(e => e.Reservierungsnummer == temp);
-            Console.WriteLine("Sie haben " + element.ToString() + " ausgewählt. Was wollen Sie ändern?");
-            Console.WriteLine("Schreiben Sie 'Gast', 'Zimmerkategorie', 'Zimmer', 'Reservierungsnummer', 'Anzahl Personen', 'Anreisedatum', 'Abreisedatum', 'Verpflegung' oder 'Gesamtkosten'.");
+            var reservierungsListenElement = reservierungsListe.Find(e => e.ReservierungsNummer == temp);
+            Console.WriteLine("Sie haben " + reservierungsListenElement.ToString() + " ausgewählt. Was wollen Sie ändern?");
+            Console.WriteLine("Schreiben Sie 'Gast', 'Zimmer', 'Reservierungsnummer', 'Anzahl Personen', 'Anreisedatum', 'Abreisedatum', 'Verpflegung' oder 'Gesamtkosten'.");
             string eingabe = Console.ReadLine();
             if (eingabe == "Gast")
             {
-                //TODO
-            }
-            else if (eingabe == "Zimmerkategorie")
-            {
-                //TODO
+                Console.WriteLine("Welchen Gast wollen Sie dieser Reservierung zuweisen? Geben Sie hier die ID des Gastes ein.");
+                uint gastId = Convert.ToUInt32(Console.ReadLine());
+                var gaesteListenElement = gaesteListe.Find(e => e.Id == gastId);
+                reservierungsListenElement.Gast = gaesteListenElement;
+                Console.WriteLine("Sie haben den Gast auf " + gaesteListenElement.ToString + " geändert.");
             }
             else if(eingabe == "Zimmer")
             {
-                //TODO
+                Console.WriteLine("Welches Zimmer wollen Sie dieser Reservierung zuweisen? Geben Sie hier die Zimmernummer ein.");
+                uint zimmerNummer = Convert.ToUInt32(Console.ReadLine());
+                var zimmerListenElement = zimmerVerwaltungsListe.Find(e => e.ZimmerNummer == zimmerNummer);
+                reservierungsListenElement.Zimmer = zimmerListenElement;
+                Console.WriteLine("Sie haben das Zimmer auf " + zimmerListenElement.ToString + " geändert.");
             }
             else
             {
                 Console.WriteLine("Geben Sie den gewünschten neuen Wert ein.");
                 if (eingabe == "Reservierungsnummer")
                 {
-                    element.Reservierungsnummer = Convert.ToUInt32(Console.ReadLine());
-                    Console.WriteLine("Sie haben die Reservierungsnummer auf " + element.Reservierungsnummer + " geändert.");
+                    reservierungsListenElement.ReservierungsNummer = Convert.ToUInt32(Console.ReadLine());
+                    Console.WriteLine("Sie haben die Reservierungsnummer auf " + reservierungsListenElement.ReservierungsNummer + " geändert.");
                 }
                 else if (eingabe == "Anzahl Personen")
                 {
-                    element.AnzahlPersonen = Convert.ToByte(Console.ReadLine());
-                    Console.WriteLine("Sie haben die Anzahl der Personen auf " + element.AnzahlPersonen+ " geändert.");
+                    reservierungsListenElement.AnzahlPersonen = Convert.ToByte(Console.ReadLine());
+                    Console.WriteLine("Sie haben die Anzahl der Personen auf " + reservierungsListenElement.AnzahlPersonen+ " geändert.");
                 }
                 else if (eingabe == "Anreisedatum")
                 {
-                    element.AnreiseDatum = Convert.ToDateTime(Console.ReadLine());
-                    Console.WriteLine("Sie haben das Anreisedatum auf " + element.AnreiseDatum + " geändert.");
+                    reservierungsListenElement.AnreiseDatum = Convert.ToDateTime(Console.ReadLine());
+                    Console.WriteLine("Sie haben das Anreisedatum auf " + reservierungsListenElement.AnreiseDatum + " geändert.");
                 }
                 else if (eingabe == "Abreisedatum")
                 {
-                    element.AbreiseDatum = Convert.ToDateTime(Console.ReadLine());
-                    Console.WriteLine("Sie das Abreisedatum auf " + element.AbreiseDatum + " geändert.");
+                    reservierungsListenElement.AbreiseDatum = Convert.ToDateTime(Console.ReadLine());
+                    Console.WriteLine("Sie das Abreisedatum auf " + reservierungsListenElement.AbreiseDatum + " geändert.");
                 }
                 else if (eingabe == "Verpflegung")
                 {
-                    element.Verpflegung = Console.ReadLine();
-                    Console.WriteLine("Sie haben die Verpflegung auf " + element.Verpflegung + " geändert.");
+                    reservierungsListenElement.Verpflegung = Console.ReadLine();
+                    Console.WriteLine("Sie haben die Verpflegung auf " + reservierungsListenElement.Verpflegung + " geändert.");
                 }
                 else if (eingabe == "Gesamtkosten")
                 {
-                    element.Gesamtkosten = Convert.ToDouble(Console.ReadLine());
+                    reservierungsListenElement.Gesamtkosten = Convert.ToDouble(Console.ReadLine());
                     Console.WriteLine("Sie haben die Gesamtkosten auf" + eingabe + " geändert.");
                 }
                 else
@@ -495,7 +510,7 @@
             Console.WriteLine("Sie haben ausgewählt, dass Sie eine Reservierung löschen wollen.");
             Console.WriteLine("Bitte geben Sie die Reservierungsnummer an, die Sie löschen wollen.");
             uint temp = Convert.ToUInt32(Console.ReadLine());
-            var element = reservierungsList.Find(e => e.Reservierungsnummer == temp);
+            var element = reservierungsList.Find(e => e.ReservierungsNummer == temp);
             Console.WriteLine("Sie haben " + element.ToString() + " ausgewählt. Wollen Sie diese Reservierung löschen? Geben Sie Ja oder Nein ein.");
             string eingabe = Console.ReadLine();
             if (eingabe == "Ja")
@@ -505,7 +520,7 @@
             }
             else if (eingabe == "Nein")
             {
-                Program.ContinueWorkflow();
+
             }
             else
             {
@@ -516,10 +531,13 @@
 
         public static void Ausgeben(List<ReservierungsVerwaltung> reservierungsListe)
         {
+            var header = new System.Text.StringBuilder();
+            header.Append(String.Format("{0,10} {1,20} {2,10} {3,10} {4,10} {5,10} {6,10} {7,10} {8,10} \n \n", "Res.Nr", "Gast", "ZimmerNr", "Zimmer Kateg.", "Anz. Pers", "Anreise", "Abreise", "Verpflegung", "Ges.Kosten"));
             for (int i = 0; i < reservierungsListe.Count; i++)
             {
-                Console.WriteLine(reservierungsListe[i].Reservierungsnummer + "/t" + reservierungsListe[i].AnzahlPersonen + "/t" + reservierungsListe[i].AnreiseDatum + "/t" + reservierungsListe[i].AbreiseDatum + "/t" + reservierungsListe[i].Verpflegung + "/t" + reservierungsListe[i].Gesamtkosten);
+                header.Append(String.Format("{0,10} {1,20} {2,10} {3,10} {4,10} {5,10} {6,10} {7,10} {8,10} \n", reservierungsListe[i].ReservierungsNummer, reservierungsListe[i].Gast.ToString(), reservierungsListe[i].Zimmer.ToString(), reservierungsListe[i].Zimmer.Kategorie.ToString(), reservierungsListe[i].AnzahlPersonen, reservierungsListe[i].AnreiseDatum, reservierungsListe[i].AbreiseDatum, reservierungsListe[i].Verpflegung, reservierungsListe[i].Gesamtkosten));            
             }
+            Console.WriteLine(header);
         }
     }
 }
